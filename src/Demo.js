@@ -11,6 +11,7 @@ export default function Demo() {
   const styles = ["科幻", "溫馨", "驚悚"]
   const [keywordStatus, setKeywordStatus] = useState(Array(keywords.length).fill(false));
   const [styleStatus, setStyleStatus] = useState(Array(styles.length).fill(false));
+  const [prompt, setPrompt] = useState("");
 
   function Item({word, selected, handleClick}) {
         return (
@@ -56,7 +57,9 @@ export default function Demo() {
     const selectedKeywords = keywords.filter((word, index) => keywordStatus[index])
     const selectedStyles = styles.filter((word, index) => styleStatus[index])
 
-    const content = "你是一名經驗豐富的極短篇作家，我將會給你5個關鍵字和一些故事風格，請用這5個關鍵字以指定的風格寫出一段200字以內的故事，請注意極短篇的長度務必要限制在200字以內。關鍵字：" + selectedKeywords.join("，") + "。故事風格：" + selectedStyles.join("，")
+    let content = prompt || "你是一名經驗豐富的故事作家，我將會給你5個關鍵字和一些故事風格，請用這5個關鍵字的觀念以指定的風格寫出一段小故事，請注意文章長度必須限制在5句話以內。"
+    if (content.slice(-1) !== "。") content = content + "。"
+    content = content + "關鍵字：" + selectedKeywords.join("，") + "。故事風格：" + selectedStyles.join("，")
     try {
       await llm.chat({
         messages: [{ role: "user", content: content }],
@@ -78,6 +81,13 @@ export default function Demo() {
 
   return (
     <div>
+      <div>
+        <h2>Prompt</h2>
+        <textarea 
+          style={{height: "4rem", width: "20rem"}}
+          onChange={e => setPrompt(e.target.value)} 
+          placeholder="Please enter the prompt. If this area is left blank, a default prompt will be used."></textarea>
+      </div>
       <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {keywordDivs}
       </div>
