@@ -5,6 +5,7 @@ import { useState } from "react";
 export default function Demo() {
   const llm = useLLM({ serviceUrl: "https://usellm.org/api/llm" });
   const [result, setResult] = useState("");
+  const [name, setName] = useState("");
   const keywords = [
     "愛情", "夢想", "勇氣", "家庭", "成長", "信仰", "友情", "青春", "自由", "堅強", "榜樣", "幸福", "創造力", "勤奮", "自我實現", "人生價值觀", "才能", "優雅", "自律", "快樂", "孝順", "熱情", "誠實", "感恩", "自信"
   ]
@@ -57,7 +58,7 @@ export default function Demo() {
     const selectedKeywords = keywords.filter((word, index) => keywordStatus[index])
     const selectedStyles = styles.filter((word, index) => styleStatus[index])
 
-    let content = prompt || "你是一名經驗豐富的故事作家，我將會給你5個關鍵字和一些故事風格，請用這5個關鍵字的觀念以指定的風格寫出一段小故事，請注意文章長度必須限制在5句話以內。"
+    let content = prompt || "你是一名經驗豐富的故事作家，我將會給你5個關鍵字和一些故事風格，請用這5個關鍵字的觀念以指定的風格寫出一段小故事，請注意文章長度必須限制在5句話以內。故事的主要主角名稱請用<NAME>替換，其餘角色則不用替換。"
     if (content.slice(-1) !== "。") content = content + "。"
     content = content + "關鍵字：" + selectedKeywords.join("，") + "。故事風格：" + selectedStyles.join("，")
     try {
@@ -66,6 +67,8 @@ export default function Demo() {
         stream: true,
         onStream: ({ message }) => setResult(message.content),
       });
+      console.log(result.length);
+      setResult(result => result.replaceAll("<NAME>", name));
     // const { message } = await llm.chat({
     //     messages: [{ role: "user", content: content }]
     // });
@@ -81,7 +84,12 @@ export default function Demo() {
 
   return (
     <div>
-      <div>
+      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+        <h2>Name</h2>
+        <input 
+          placeholder="Please enter your name..."
+          onChange={(e) => setName(e.target.value)}
+        ></input>
         <h2>Prompt</h2>
         <textarea 
           style={{height: "4rem", width: "20rem"}}
